@@ -1,7 +1,7 @@
 # Achievements [![Latest Version]][crates.io]
 
-[Latest Version]: https://img.shields.io/crates/v/achievements.svg
-[crates.io]: https://crates.io/crates/achievements
+[![Crate](https://img.shields.io/crates/v/achievements.svg)](https://crates.io/crates/achievements)
+[![Docs](https://docs.rs/achievements/badge.svg)](https://docs.rs/achievements)
 
 **Achievements is a command line tool to track and celebrate the passage of time.**
 
