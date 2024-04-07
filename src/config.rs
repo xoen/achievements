@@ -14,7 +14,7 @@ pub struct Day {
     pub date: OffsetDateTime,
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Default, Serialize, Deserialize)]
 pub struct Config {
     #[serde(default)]
     pub days: Vec<Day>,
@@ -34,17 +34,44 @@ impl Config {
     }
 }
 
+/// Read config file
+///
+/// File format is something like:
+///
+/// ```JSON
+/// {
+///   "days": [
+///     {
+///       "label": "Moon landing",
+///       "date": "1969-07-20T20:17:40+00:00"
+///     },
+///     {
+///       "label": "Berlin Wall Fall",
+///       "date": "1989-11-09T18:53:00+01:00"
+///     }
+///   ]
+/// }
+/// ```
+///
+/// Config file is at `~/.config/achievements/config.json`.
+/// If the file doesn't exist an empty `Config` with no days is returned.
 pub fn read() -> Result<Config, ()> {
     let config_dir = config_dir();
     create_config_dir(&config_dir);
 
     let config_file = format!("{config_dir}/config.json");
-    let reader = File::open(config_file).expect("Failed to open config file");
-    let config: Config = serde_json::from_reader(reader).expect("Failed to parse config file");
+    let config = if let Ok(reader) = File::open(config_file) {
+        serde_json::from_reader(reader).expect("Failed to parse config file")
+    } else {
+        Config::default()
+    };
 
     Ok(config)
 }
 
+/// Write the config to `~/.config/achievements/config.json`
+///
+/// The file is created if it doesn't exist, updated otherwise.
 pub fn write(config: &Config) -> Result<(), ()> {
     let config_dir = config_dir();
     create_config_dir(&config_dir);
