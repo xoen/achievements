@@ -3,7 +3,7 @@
 //! Install using Cargo:
 //!
 //! ```Bash
-//! $ cargo install achivements
+//! $ cargo install achievements
 //! ```
 //!
 //! Then run by
