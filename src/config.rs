@@ -21,16 +21,28 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn set_day(&mut self, label: &str, day: OffsetDateTime) {
+    /// Add/update a day to the config
+    ///
+    /// The day is added if days doesn't contain a day with the given label.
+    ///
+    /// If a day with the same (trimmed) label is found its date is updated
+    /// with the given date
+    pub fn set_day(&mut self, label: &str, date: OffsetDateTime) {
+        let label = label.trim();
         match self.days.iter_mut().find(|day| day.label == label) {
             Some(d) => {
-                d.date = day;
+                d.date = date;
             }
             None => self.days.push(Day {
-                label: label.trim().to_string(),
-                date: day,
+                label: label.to_string(),
+                date,
             }),
         };
+    }
+
+    /// Removes a day from the config
+    pub fn remove_day(&mut self, label: &str) {
+        todo!("Remove the day with the given label from the config");
     }
 }
 
@@ -154,7 +166,7 @@ fn set_day_test() {
     assert_eq!(second_day.date, second_date);
 
     // updating an existing day
-    let second_label = "A random day";
+    let second_label = "   A random day  \n";
     let second_date = datetime!(1000-12-12 12:00 +02:00);
     config.set_day(second_label, second_date);
 
@@ -165,6 +177,6 @@ fn set_day_test() {
     assert_eq!(first_day.date, first_date);
     // second day updated
     let second_day = config.days.last().expect("Should have a day in it");
-    assert_eq!(second_day.label, second_label);
+    assert_eq!(second_day.label, second_label.trim());
     assert_eq!(second_day.date, second_date);
 }
