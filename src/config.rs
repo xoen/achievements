@@ -55,9 +55,16 @@ impl Config {
 ///
 /// Config file is at `~/.config/achievements/config.json`.
 /// If the file doesn't exist an empty `Config` with no days is returned.
+///
+/// # Panics
+/// Currently panics if it can't create the config directory (should return
+/// a `Result::Err`).
+///
+/// Currently panics if the config file isn't valid JSON (should return a
+/// `Result::Err`)
 pub fn read() -> Result<Config, ()> {
     let config_dir = config_dir();
-    create_config_dir(&config_dir);
+    create_config_dir(&config_dir).expect("Failed to create config directory");
 
     let config_file = format!("{config_dir}/config.json");
     let config = if let Ok(reader) = File::open(config_file) {
@@ -72,9 +79,22 @@ pub fn read() -> Result<Config, ()> {
 /// Write the config to `~/.config/achievements/config.json`
 ///
 /// The file is created if it doesn't exist, updated otherwise.
+///
+/// # Panics
+/// Currently panics if it can't create the config directory (should return
+/// a `Result::Err`).
+///
+/// Currently panics if it can't create/open the config file (should return
+/// a `Result::Err`).
+///
+/// Currently panics if it can't write the config file (should return
+/// a `Result::Err`).
+///
+/// Currently panics if it can't flush the config file (should return
+/// a `Result::Err`).
 pub fn write(config: &Config) -> Result<(), ()> {
     let config_dir = config_dir();
-    create_config_dir(&config_dir);
+    create_config_dir(&config_dir).expect("Failed to create config directory");
 
     let config_file = format!("{config_dir}/config.json");
     let file = File::create(config_file).expect("Failed to create config file");
@@ -87,8 +107,9 @@ pub fn write(config: &Config) -> Result<(), ()> {
     Ok(())
 }
 
-fn create_config_dir(config_dir: &str) {
-    create_dir_all(&config_dir).expect("Failed to create config directory");
+/// Creates the config directory if it doesn't exist
+fn create_config_dir(config_dir: &str) -> Result<(), std::io::Error> {
+    Ok(create_dir_all(&config_dir)?)
 }
 
 fn config_dir() -> String {
