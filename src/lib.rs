@@ -1,3 +1,30 @@
+//! Calculate and display achievements
+//!
+//! Install using Cargo:
+//!
+//! ```Bash
+//! $ cargo install achivements
+//! ```
+//!
+//! Then run by
+//! ```Bash
+//! $ achievements
+//!
+//! Moon landing: 19984 days 💎💎💎💎💎
+//! Berlin Wall Fall: 12567 days 💎💎💎
+//! ```
+//!
+//! **IMPORTANT**: The way the number of days/months/etc is calculated
+//! is _very simple_ and **not** accurate. A day is ~86400 seconds.
+//! A month is ~30 days, a year is ~365 days etc...this means the reported
+//! intervals are only a rough indication and they can be wrong.
+//!
+//! For example:
+//! - the accurate number of days since the Moon landing should
+//!   be 19985 days but the tool reports 19984 days (1 day off)
+//! - the accurate number of days since the Berlin Wall fall should
+//!   be 12568 days but the tool reports 12567 days (1 day off)
+
 use std::fmt::Display;
 
 use time::OffsetDateTime;
@@ -26,6 +53,16 @@ pub struct Interval {
 }
 
 impl Interval {
+    /// Builds an `Interval` from a number of days
+    ///
+    /// Example:
+    ///
+    /// ```
+    /// use achievements::Interval;
+    ///
+    /// let days = Interval::from_days(60);
+    /// assert_eq!("2 months", days.to_words());
+    /// ```
     pub fn from_days(days: usize) -> Self {
         Self {
             days,
@@ -58,6 +95,23 @@ impl Interval {
         IntervalEnum::Day(days)
     }
 
+    /// Converts an `Interval` to words
+    ///
+    /// Accounts for singular/plural but shows days when number of days
+    /// is not a whole week/month/etc, for example
+    ///
+    /// ```
+    /// use achievements::Interval;
+    ///
+    /// let days = Interval::from_days(5);
+    /// assert_eq!("5 days", days.to_words());
+    ///
+    /// let week = Interval::from_days(7);
+    /// assert_eq!("1 week", week.to_words());
+    ///
+    /// let a_week_and_a_bit = Interval::from_days(10);
+    /// assert_eq!("10 days", a_week_and_a_bit.to_words());
+    /// ```
     pub fn to_words(&self) -> String {
         match self.e {
             IntervalEnum::Decade(1) => "1 decade, that's amazing".to_string(),
@@ -99,11 +153,39 @@ impl Interval {
 }
 
 impl Display for Interval {
+    /// Ability to display and convert `Interval` to strings
+    ///
+    /// "Badges" are displayed after the interval in words, for example:
+    /// - 2 days ☆☆
+    /// - 3 weeks ★★★
+    /// - 1 month ⭐
+    /// - 2 years 🌟🌟
+    /// - 1 decade 💎
+    ///
+    /// Example:
+    ///
+    /// ```
+    /// use achievements::Interval;
+    ///
+    /// // Intervals can be converted to `String``
+    /// let days = Interval::from_days(3);
+    /// assert_eq!("3 days ☆☆☆", days.to_string());
+    ///
+    /// // Intervals can be displayed
+    /// let weeks = Interval::from_days(14);
+    /// println!("{}", weeks);
+    /// // prints "2 weeks ★★"
+    /// ```
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "{} {}", self.to_words(), self.badges())
     }
 }
 
+/// Returns the number of days since the given date
+///
+/// Implementation is very simple and assumes a day is 86400 seconds.
+/// This means the returned value could not be accurate but it is close
+/// enough.
 pub fn days_since(day: OffsetDateTime) -> usize {
     let now = OffsetDateTime::now_utc();
     let seconds_elapsed: time::Duration = now - day;
