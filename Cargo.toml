@@ -2,7 +2,7 @@
 name = "achievements"
 description = "Track and celebrate the passage of time"
 keywords = ["tracking", "time", "achievements", "utility", "cli"]
-version = "0.1.1"
+version = "0.1.2"
 license = "MIT OR Apache-2.0"
 edition = "2021"
 

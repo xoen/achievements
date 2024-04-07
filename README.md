@@ -1,4 +1,4 @@
-# Achievements [![Latest Version]][crates.io]
+# Achievements
 
 [![Crate](https://img.shields.io/crates/v/achievements.svg)](https://crates.io/crates/achievements)
 [![Docs](https://docs.rs/achievements/badge.svg)](https://docs.rs/achievements)
