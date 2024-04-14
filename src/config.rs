@@ -7,7 +7,7 @@ use homedir::get_my_home;
 use serde::{Deserialize, Serialize};
 use time::OffsetDateTime;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Day {
     pub label: String,
     #[serde(with = "time::serde::rfc3339")]
@@ -40,9 +40,20 @@ impl Config {
         };
     }
 
-    /// Removes a day from the config
+    /// Removes a day with the given label from the config
+    ///
+    /// The label comparison ignores case and leading/trailing whitespace
     pub fn remove_day(&mut self, label: &str) {
-        todo!("Remove the day with the given label from the config");
+        let label = label.trim().to_lowercase();
+
+        let other_days: Vec<Day> = self
+            .days
+            .iter()
+            .filter(|day| day.label.trim().to_lowercase() != label)
+            .cloned()
+            .collect();
+
+        self.days = other_days;
     }
 }
 
@@ -179,4 +190,41 @@ fn set_day_test() {
     let second_day = config.days.last().expect("Should have a day in it");
     assert_eq!(second_day.label, second_label.trim());
     assert_eq!(second_day.date, second_date);
+}
+
+#[test]
+fn remove_day_test() {
+    use time::macros::datetime;
+
+    let first_label = "Festa della liberazione";
+    let first_date = datetime!(1944-04-25 12:00 +02:00);
+
+    let mut config = Config {
+        days: vec![
+            Day {
+                label: first_label.to_string(),
+                date: first_date,
+            },
+            Day {
+                label: "something".to_string(),
+                date: datetime!(2000-01-31 12:00 +02:00),
+            },
+        ],
+    };
+
+    // Remove day with given label (case-insensitive, trimmed)
+    let input_label = " SomeThing  \n";
+    config.remove_day(input_label);
+
+    // only 1 day remaining
+    assert_eq!(config.days.len(), 1);
+
+    // first day still unchanged
+    let first_day = config.days.first().expect("Should have a day in it");
+    assert_eq!(first_day.label, first_label);
+    assert_eq!(first_day.date, first_date);
+
+    // day with label "something" removed
+    let something_is_found = config.days.iter().find(|day| day.label == "something");
+    assert!(something_is_found.is_none());
 }
