@@ -132,7 +132,7 @@ pub fn write(config: &Config) -> Result<(), ()> {
 
 /// Creates the config directory if it doesn't exist
 fn create_config_dir(config_dir: &str) -> Result<(), std::io::Error> {
-    Ok(create_dir_all(&config_dir)?)
+    create_dir_all(config_dir)
 }
 
 fn config_dir() -> String {
